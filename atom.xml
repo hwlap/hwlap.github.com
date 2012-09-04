@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
+  <title><![CDATA[最佳编程实践]]></title>
   <link href="http://hwlap.github.com/atom.xml" rel="self"/>
   <link href="http://hwlap.github.com/"/>
-  <updated>2012-09-05T01:13:50+08:00</updated>
+  <updated>2012-09-05T01:35:44+08:00</updated>
   <id>http://hwlap.github.com/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[hw.liaiping]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[hello world]]></title>
+    <link href="http://hwlap.github.com/blog/2012/09/05/hello-world/"/>
+    <updated>2012-09-05T01:34:00+08:00</updated>
+    <id>http://hwlap.github.com/blog/2012/09/05/hello-world</id>
+    <content type="html"><![CDATA[<h1>Hello, Welcome you!<h1>
+<p>This is my first github blog.</p>
+
+]]></content>
+  </entry>
   
 </feed>
