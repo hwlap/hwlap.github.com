@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[最佳编程实践]]></title>
+  <title><![CDATA[best practice]]></title>
   <link href="http://hwlap.github.com/atom.xml" rel="self"/>
   <link href="http://hwlap.github.com/"/>
-  <updated>2012-09-05T01:35:44+08:00</updated>
+  <updated>2012-09-05T01:59:19+08:00</updated>
   <id>http://hwlap.github.com/</id>
   <author>
     <name><![CDATA[hw.liaiping]]></name>
@@ -14,12 +14,312 @@
 
   
   <entry>
-    <title type="html"><![CDATA[hello world]]></title>
+    <title type="html"><![CDATA[C generate list design and implement]]></title>
+    <link href="http://hwlap.github.com/blog/2012/09/05/c-generate-list-design-and-implement/"/>
+    <updated>2012-09-05T01:52:00+08:00</updated>
+    <id>http://hwlap.github.com/blog/2012/09/05/c-generate-list-design-and-implement</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[C list design and implement.]]></title>
     <link href="http://hwlap.github.com/blog/2012/09/05/hello-world/"/>
     <updated>2012-09-05T01:34:00+08:00</updated>
     <id>http://hwlap.github.com/blog/2012/09/05/hello-world</id>
-    <content type="html"><![CDATA[<h1>Hello, Welcome you!<h1>
-<p>This is my first github blog.</p>
+    <content type="html"><![CDATA[<p>#include <stdlib.h>
+<p>#include <common/assert.h>
+<p>#include &#8220;list.h&#8221;
+<p>
+<p>__BEGIN_C_DECLS
+<p>
+<p>typedef struct _list_node {  
+<p> void              *_element;
+<p> struct _list_node *_prev;
+<p> struct _list_node *_next;
+<p>} _list_node;
+<p>
+<p>typedef struct _list {
+<p> _list_node        *_head;
+<p> _list_node        *_tail;
+<p> int               _count;
+<p>
+<p> malloc_fn         _malloc;
+<p> free_fn           _free;
+<p> copy_fn           _copy;
+<p> cmp_fn            _cmp;
+<p>} _list;
+<p>
+<p>#define IS_SAME_NODE(_lst_node_before, _lst_node_after) ((_lst_node_before) == (_lst_node_after))
+<p>#define IS_HEAD_NODE(_lst_node)          ((_lst_node)->_prev == NULL)
+<p>#define IS_TAIL_NODE(_lst_node)          ((_lst_node)->_next == NULL)
+<p>#define INCREASE_LIST_COUNT(_count)      ((_count)++);
+<p>#define DECREASE_LIST_COUNT(_count)      ((_count)&#8211;);
+<p>
+<p>#define INSERT_FIRST_NODE(_lst, _lst_node) do { \
+<p> (_lst)->_head = (_lst_node); \
+<p> (_lst)->_tail = (_lst_node); \
+<p>} while (0)
+<p>
+<p>#define INSERT_TAIL_NODE(_lst, _lst_node) do { \
+<p> (_lst_node)->_prev   = (_lst)->_tail; \
+<p>     (_lst)->_tail->_next = (_lst_node); \
+<p> (_lst)->_tail        = (_lst_node); \
+<p>} while (0)
+<p>
+<p>#define INSERT_HEAD_NODE(_lst, _lst_node) do { \
+<p> (_lst_node)->_next = (_lst)->_head; \
+<p> (_lst)->_head      = (_lst_node); \
+<p>} while (0)
+<p>
+<p>static _list_node* list_create_node(_list *_lst, void *_element) {
+<p> _list_node *lst_node = (_list_node*)malloc(sizeof(_list_node));
+<p> R_ASSERT(lst_node != NULL, NULL);
+<p> lst_node->_element = _lst->_malloc(_element);
+<p> lst_node->_prev = NULL;
+<p> lst_node->_next = NULL;
+<p> return lst_node;
+<p>}
+<p>
+<p>static void list_destroy_node(_list *_lst, _list_node *_lst_node) {
+<p> V_ASSERT((_lst != NULL) && (_lst_node != NULL));
+<p> _lst->_free(_lst_node->_element);
+<p> free(_lst_node);
+<p>}
+<p>
+<p>static void list_insert_head_node(_list *_lst, _list_node *_lst_node) {
+<p> if (list_empty(_lst)) {
+<p>     INSERT_FIRST_NODE(_lst, _lst_node);
+<p> } else {
+<p>     INSERT_HEAD_NODE(_lst, _lst_node);
+<p> }
+<p> INCREASE_LIST_COUNT(_lst->_count);
+<p>}
+<p>
+<p>static void list_insert_tail_node(_list *_lst, _list_node *_lst_node) {
+<p> if (list_empty(_lst)) {
+<p>     INSERT_FIRST_NODE(_lst, _lst_node);
+<p> } else {
+<p>     INSERT_TAIL_NODE(_lst, _lst_node);
+<p> }
+<p> INCREASE_LIST_COUNT(_lst->_count);
+<p>}
+<p>
+<p>static _list_node* list_find_node(_list *_lst, void *element) {
+<p> _list_node *_lst_node = _lst->_head;
+<p>
+<p> while (_lst_node != NULL) {
+<p>     if (0 == _lst->_cmp(_lst_node->_element, element)) 
+<p>         return _lst_node;
+<p>     _lst_node = _lst_node->_next;
+<p> }
+<p>
+<p> return NULL;
+<p>}
+<p>
+<p>
+<p>static void list_delete_node(_list *_lst, _list_node *_lst_node) {
+<p> if (IS_HEAD_NODE(_lst_node) && IS_TAIL_NODE(_lst_node)) {
+<p>     _lst->_head = NULL;
+<p>     _lst->_tail = NULL;
+<p> } else if (IS_HEAD_NODE(_lst_node)) {
+<p>     _lst->_head = _lst_node->_next;
+<p>     _lst_node->_next->_prev = NULL;
+<p> } else if (IS_TAIL_NODE(_lst_node)) {
+<p>     _lst->_tail = _lst_node->_prev;
+<p>     _lst_node->_prev->_next = NULL;
+<p> } else {
+<p>     _lst_node ->_prev->_next = _lst_node->_next;
+<p>     _lst_node->_next->_prev  = _lst_node->_prev;
+<p> }
+<p>
+<p> list_destroy_node(_lst, _lst_node);
+<p> DECREASE_LIST_COUNT(_lst->_count);
+<p>}
+<p>
+<p>
+<p>static void list_unique_node( _list * _lst ) {
+<p> _list_node *_del_node = NULL;
+<p> _list_node *_lst_node = _lst->_head;
+<p>
+<p> while (NULL != _lst_node) {
+<p>     if ((_del_node = list_find_node(_lst, _lst_node->_element)) != _lst_node)
+<p>         list_delete_node(_lst, _del_node);
+<p>     _lst_node = _lst_node->_next;
+<p> }
+<p>}
+<p>
+<p>static _list_node* list_find_min_node(_list *_lst, _list_node *_lst_head) {
+<p> _list_node *_lst_move_node = NULL;
+<p> _list_node *_lst_min_node = _lst_head;
+<p> for (_lst_move_node = _lst_head; _lst_move_node != NULL; _lst_move_node = _lst_move_node->_next) {
+<p>     if (_lst->_cmp(_lst_min_node->_element, _lst_move_node->_element) > 0) {
+<p>         _lst_min_node = _lst_move_node;
+<p>     }
+<p> }
+<p> return _lst_min_node;
+<p>}
+<p>
+<p>static void list_swap_node(_list *_lst, _list_node *_lst_node_before, _list_node *_lst_node_after) {
+<p> _list_node *_lst_node_before_next = NULL;
+<p> _list_node *_lst_node_before_prev = NULL;
+<p> _list_node *_lst_node_after_next  = NULL;
+<p> _list_node *_lst_node_after_prev  = NULL;
+<p>
+<p> V_ASSERT(_lst != NULL && _lst_node_before != NULL && _lst_node_after != NULL);
+<p>
+<p> if (IS_SAME_NODE(_lst_node_before, _lst_node_after))    
+<p>     return;
+<p> if (IS_HEAD_NODE(_lst_node_before))                     
+<p>     _lst->_head = _lst_node_after;
+<p> if (IS_TAIL_NODE(_lst_node_after))                      
+<p>     _lst->_tail = _lst_node_before;
+<p>
+<p> _lst_node_before_prev   = _lst_node_before->_prev;
+<p> _lst_node_before_next   = _lst_node_before->_next;
+<p> _lst_node_after_next    = _lst_node_after->_next;
+<p> _lst_node_after_prev    = _lst_node_after->_prev;
+<p>
+<p> if (_lst_node_before->_next == _lst_node_after) {
+<p>     _lst_node_after->_next  = _lst_node_before;
+<p>     _lst_node_before->_prev = _lst_node_after;
+<p> } else {
+<p>     _lst_node_after->_next  = _lst_node_before_next;
+<p>     _lst_node_before->_prev = _lst_node_after_prev;
+<p> }
+<p>
+<p> _lst_node_before->_next = _lst_node_after_next;
+<p> _lst_node_after->_prev  = _lst_node_before_prev;
+<p>
+<p> if (NULL != _lst_node_before_prev) 
+<p>     _lst_node_before_prev->_next = _lst_node_after;
+<p> if ((NULL != _lst_node_before_next) && (_lst_node_before_next != _lst_node_after)) 
+<p>     _lst_node_before_next->_prev = _lst_node_after;
+<p> if ((NULL != _lst_node_after_prev)  && (_lst_node_after_prev != _lst_node_before))
+<p>     _lst_node_after_prev->_next  = _lst_node_before;
+<p> if (NULL != _lst_node_after_next)  
+<p>     _lst_node_after_next->_prev  = _lst_node_before;
+<p>}
+<p>
+<p>static void list_select_sort(_list *_lst) {
+<p> _list_node *_lst_node_before = NULL; 
+<p> _list_node *_lst_node_after  = NULL;
+<p> 
+<p> for (_lst_node_before = _lst->_head; _lst_node_before != NULL; _lst_node_before = _lst_node_before->_next) {
+<p>     _lst_node_after = list_find_min_node(_lst, _lst_node_before->_next);
+<p>     if ((NULL != _lst_node_after) && (_lst->_cmp(_lst_node_before->_element, _lst_node_after->_element) > 0)) {
+<p>         list_swap_node(_lst, _lst_node_before, _lst_node_after);
+<p>         _lst_node_before = _lst_node_after;
+<p>     }
+<p> }
+<p>}
+<p>
+<p>list list_create( malloc_fn _malloc, free_fn _free, copy_fn _copy, cmp_fn _cmp) {
+<p> _list *_lst = NULL;
+<p>
+<p> R_ASSERT((_malloc != NULL) && (_free != NULL) && (_copy != NULL) && (_cmp != NULL), NULL);
+<p>
+<p> _lst = (_list*)malloc(sizeof(_list));
+<p> R_ASSERT(_lst != NULL, NULL);
+<p> 
+<p> _lst->_head   = NULL;
+<p> _lst->_tail   = NULL;
+<p> _lst->_malloc = _malloc;
+<p> _lst->_free   = _free;
+<p> _lst->_copy   = _copy;
+<p> _lst->_cmp    = _cmp;
+<p> _lst->_count  = 0;
+<p>
+<p> return (void*)(_lst);
+<p>}
+<p>
+<p>status list_append( list lst, void *element ) {
+<p> _list_node *_lst_node = NULL;
+<p>
+<p> R_ASSERT((lst != NULL) || (element != NULL), failure);
+<p> R_ASSERT((_lst_node = list_create_node((_list*)lst, element)) != NULL, failure);
+<p>
+<p> list_insert_tail_node((_list*)lst, _lst_node);
+<p> return success;
+<p>}
+<p>
+<p>status list_prepend( list lst, void *element ) {
+<p> _list      *_lst = NULL;
+<p> _list_node *_lst_node = NULL;
+<p>
+<p> R_ASSERT((_lst != NULL) || (element != NULL), failure);
+<p> R_ASSERT ((_lst_node = list_create_node(_lst, element)) != NULL, failure);
+<p>
+<p> list_insert_head_node((_list*)lst, _lst_node);
+<p> return success;
+<p>}
+<p>
+<p>status list_front(list lst, void *element) {
+<p> R_ASSERT((lst != NULL) || (element != NULL), failure);
+<p> if (list_empty(lst)) return failure;
+<p> ((_list*)lst)->_copy(element, ((_list*)lst)->_head->_element);
+<p> return success;
+<p>}
+<p>
+<p>status list_back(list lst, void *element) {
+<p> R_ASSERT((lst != NULL) || (element != NULL), failure);
+<p> if (list_empty(lst)) return failure;
+<p> ((_list*)lst)->_copy(element, ((_list*)lst)->_tail->_element);
+<p> return success;
+<p>}
+<p>
+<p>_bool list_empty(list lst) {
+<p> R_ASSERT(lst != NULL, false);
+<p> return (NULL == ((_list*)lst)->_head) ? true : false;
+<p>}
+<p>
+<p>
+<p>status list_delete(list lst, void *element) {
+<p> _list_node *_lst_node = NULL;
+<p> R_ASSERT(lst != NULL || element != NULL, failure);
+<p>
+<p> if (NULL != (_lst_node = list_find_node((_list*)lst, element))) {
+<p>     list_delete_node((_list*)lst, _lst_node);
+<p>     return success;
+<p> } 
+<p> return failure;
+<p>}
+<p>
+<p>int  list_count(list lst) {
+<p> R_ASSERT(lst != NULL, -1);
+<p> return ((_list*)lst)->_count;
+<p>}
+<p>
+<p>void list_unique( list lst ) {
+<p> V_ASSERT(lst != NULL);
+<p> list_unique_node((_list*)lst);
+<p>}
+<p>
+<p>void list_sort(list lst) {
+<p> V_ASSERT(lst != NULL);
+<p> if (list_empty(lst))  return;
+<p> list_select_sort((_list*)lst);
+<p>}
+<p>
+<p>void list_for_each( list lst, visit_fn visit, void *context ) {
+<p> _list_node *_lst_node = NULL;
+<p> V_ASSERT(lst != NULL && visit != NULL);
+<p> 
+<p> for (_lst_node = ((_list*)lst)->_head; _lst_node != NULL; _lst_node = _lst_node->_next) {
+<p>     visit(_lst_node->_element, context);
+<p> }
+<p>}
+<p>
+<p>void list_destroy( list lst ) {
+<p> V_ASSERT(lst != NULL);
+<p> while (!list_empty(lst)) {
+<p>     list_delete_node((_list*)lst, ((_list*)lst)->_head);
+<p> }
+<p>}
+<p>
+<p>
+<p>__END_C_DECLS
+<p>
 
 ]]></content>
   </entry>
